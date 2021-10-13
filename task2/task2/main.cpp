@@ -5,19 +5,6 @@
 
 using namespace std;
 
-int cmp2zchar(const char* str1,const char* str2, bool isStartWith=false)
-{
-    while (*str1!='\0' && *str1==*str2)
-    {
-        ++str1;
-        ++str2;
-    }
-    if (*str1==*str2) return 0;
-    if (isStartWith && *str1=='\0') return 0;
-    if (*str1>*str2) return 1;      //assuming '\0' less than any symbol
-    return -1;
-}
-
 // startWithCount value:
 //      -1 - strict equality
 //      0 - str2 start with str1
