@@ -5,7 +5,7 @@
 
 using namespace std;
 
-int cmp2zchar(const char* str1,const char* str2)
+int cmp2zchar(const char* str1,const char* str2, bool isStartWith=false)
 {
     while (*str1!='\0' && *str1==*str2)
     {
@@ -13,19 +13,9 @@ int cmp2zchar(const char* str1,const char* str2)
         ++str2;
     }
     if (*str1==*str2) return 0;
+    if (isStartWith && *str1=='\0') return 0;
     if (*str1>*str2) return 1;      //assuming '\0' less than any symbol
     return -1;
-}
-
-int testZcharStartWith(const char* str,const char* startWith)
-{
-    while (*startWith!='\0' && *startWith==*str)
-    {
-        ++startWith;
-        ++str;
-    }
-    if (*startWith=='\0') return 1;
-    return 0;
 }
 
 int substrFind(const char* str,const char* substr)
@@ -41,7 +31,7 @@ int substrFind(const char* str,const char* substr)
 
     while (*str!='\0')
     {
-        if (testZcharStartWith(str,substr)==1) k++;
+        if (cmp2zchar(substr,str,true)==0) k++;
         ++str;
     }
 

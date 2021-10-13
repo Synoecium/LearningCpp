@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1634111356 source:e:\programming\projects\workc++\task2\task2\main.cpp
+	<iostream>
+	"TEST.h"
+
+1634064980 e:\programming\projects\workc++\task2\task2\test.h
+	<iostream>
+	<assert.h>
+
