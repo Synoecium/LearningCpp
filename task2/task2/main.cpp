@@ -75,7 +75,7 @@ int substrFind(const char* str,const char* substr)
 
     while (*str!='\0')
     {
-        if (strncmp(substr,str,substrLength)==0)
+        if (myStrncmp(substr,str,substrLength)==0)
             k++;
         ++str;
     }
