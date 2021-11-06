@@ -9,46 +9,66 @@ template <typename T>
 class stack
 {
 public:
-    stack():count(0), stack_size(2)
+    stack():count(0), bucket_size(2), bucket_index(0)
     {
-        head_ptr = new T[2];
+        storage[bucket_index] = new T[bucket_size];
     };
-    ~stack(){ delete[] head_ptr;};
+    ~stack()
+    {
+        for (int i=0; i<=bucket_index; ++i)
+            delete storage[i];
+    };
 
     void push(T val)
     {
-        if (count>=stack_size)
+        if (count==bucket_size)
         {
-            stack_size*=2;
-            T* new_head_ptr = new T[stack_size];
-            for (int i=0; i<count; ++i)
-            {
-                new_head_ptr[i]=head_ptr[i];
-            }
-            delete head_ptr;
-            head_ptr = new_head_ptr;
-        }
-        head_ptr[count++]=val;
+            if (bucket_size>=INT_MAX/2)
+                throw std::runtime_error("stack overflow!");
+            bucket_size*=2;
+            storage[++bucket_index] = new T[bucket_size];
+            count=0;
+        };
+        storage[bucket_index][count++]=val;
     };
     T pop()
     {
-        if (count==0)
+        if (bucket_index==0 && count==0)
             throw std::runtime_error("stack exausted!");
-        return head_ptr[--count];
+        if (count==0)
+        {
+            delete[] storage[bucket_index--];
+            bucket_size/=2;
+            count = bucket_size;
+        };
+        return storage[bucket_index][--count];
     };
     void printContent()
     {
-        std::cout<<"stack content ("<<count<<" elements):"<<std::endl;
-        for (int i=count-1; i>=0; i--)
-            std::cout<<head_ptr[i]<<std::endl;
+        int stack_size = count;
+        for (int i=0; i<bucket_index; ++i)
+        {
+            stack_size+=(1<<(i+1));
+        }
+        std::cout<<"stack content ("<<stack_size<<" elements):"<<std::endl;
+        for (int j=count-1; j>=0; --j)
+            std::cout<<storage[bucket_index][j]<<std::endl;
+        int current_size = bucket_size/2;
+        for (int i=bucket_index-1; i>=0; --i)
+        {
+            for (int j=current_size-1; j>=0; --j)
+                std::cout<<storage[i][j]<<std::endl;
+            current_size/=2;
+        }
         std::cout<<std::endl;
     }
 
 private:
 
-    T* head_ptr;
     int count;
-    int stack_size;
+    T* storage[sizeof(int)*8-2];
+    int bucket_size;
+    int bucket_index;
 
 };
 
@@ -82,6 +102,9 @@ int main()
     newStack2.push(2);
     newStack2.push(3);
     newStack2.push(4);
+    newStack2.push(5.3234);
+    newStack2.push(6);
+    newStack2.push(7);
     std::cout<<std::endl<<std::endl;
     newStack2.printContent();
 
