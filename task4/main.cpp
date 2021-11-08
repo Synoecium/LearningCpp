@@ -6,6 +6,7 @@
 #include "TEST.h"
 
 /*
+///stack organized as fixed number of binary increasing arrrays
 template <typename T>
 class stack
 {
@@ -46,12 +47,7 @@ public:
     };
     void printContent()
     {
-        int stack_size = count;
-        for (int i=0; i<bucket_index; ++i)
-        {
-            stack_size+=(1<<(i+1));
-        }
-        std::cout<<"stack content ("<<stack_size<<" elements):"<<std::endl;
+        int64_t stack_size = count;
         for (int j=count-1; j>=0; --j)
             std::cout<<storage[bucket_index][j]<<std::endl;
         int current_size = bucket_size/2;
@@ -59,8 +55,11 @@ public:
         {
             for (int j=current_size-1; j>=0; --j)
                 std::cout<<storage[i][j]<<std::endl;
+            stack_size+=current_size;
             current_size/=2;
         }
+        std::cout<<"-------------"<<std::endl;
+        std::cout<<"stack content ("<<stack_size<<" elements)"<<std::endl;
         std::cout<<std::endl;
     }
 
@@ -71,14 +70,14 @@ private:
     int bucket_size;
     int bucket_index;
 
-};
-*/
+};*/
 
-//mixed way of storage - list+arrays
+
+/// mixed way of storage - list+arrays
 template <typename T>
 class stack
 {
-    const int MAX_CHUNK_SIZE = 1<<23;   //8 Mb
+    const int MAX_CHUNK_SIZE = 1<<23;   //32 Mb for 4 bytes elements
 public:
     stack() : count(0)
     {
@@ -139,14 +138,8 @@ public:
     };
     void printContent()
     {
-        int stack_size = count;
+        int64_t stack_size = count;
         auto prev_chunk = curr_chunk->prev_chunk;
-        while (prev_chunk!=nullptr)
-        {
-            stack_size+=prev_chunk->size;
-            prev_chunk = prev_chunk->prev_chunk;
-        }
-        std::cout<<"stack content ("<<stack_size<<" elements):"<<std::endl;
         for (int j=count-1; j>=0; --j)
             std::cout<<curr_chunk->bucket[j]<<std::endl;
         prev_chunk = curr_chunk->prev_chunk;
@@ -154,8 +147,11 @@ public:
         {
             for (int j=prev_chunk->size-1; j>=0; --j)
                 std::cout<<prev_chunk->bucket[j]<<std::endl;
+            stack_size+=prev_chunk->size;
             prev_chunk = prev_chunk->prev_chunk;
         }
+        std::cout<<"-------------"<<std::endl;
+        std::cout<<"stack content ("<<stack_size<<" elements)"<<std::endl;
         std::cout<<std::endl;
     }
 
@@ -172,18 +168,80 @@ private:
 
 };
 
+/// stack organized as simple linked list
+template <typename T>
+class stackAsList
+{
+public:
+    stackAsList()
+    {
+
+    };
+    ~stackAsList()
+    {
+        auto currentNode = head;
+        while (currentNode!=nullptr)
+        {
+            auto tempNode = currentNode->pNextNode;
+            delete currentNode;
+            currentNode = tempNode;
+        }
+    };
+
+    void push(T val)
+    {
+        auto pNewNode = new TNode;
+        pNewNode->value = val;
+        pNewNode->pNextNode = head;
+        head = pNewNode;
+
+    };
+    T pop()
+    {
+        if (head==nullptr)
+            throw std::runtime_error("stack exausted!");
+        auto returnValue = head->value;
+        head = head->pNextNode;
+        return returnValue;
+    };
+    void printContent()
+    {
+        int64_t stack_size = 0;
+        auto currentNode = head;
+        while (currentNode!=nullptr)
+        {
+            std::cout<<currentNode->value<<std::endl;
+            currentNode = currentNode->pNextNode;
+            ++stack_size;
+        }
+        std::cout<<"-------------"<<std::endl;
+        std::cout<<"stack content ("<<stack_size<<" elements)"<<std::endl;
+    }
+
+private:
+
+    struct TNode
+    {
+        T value;
+        TNode* pNextNode;
+    };
+    TNode* head = nullptr;
+
+};
+
+
 
 int main()
 {
     std::cout<<"stack class tests:"<<std::endl;
-    stack<int> newStack;
+    stackAsList<int> newStack;
     TEST_PROC("test push", newStack.push(1));
     TEST("test pop", newStack.pop(), 1);
     //TEST_PROC("test pop with empty stack", newStack.pop());
 
     srand(static_cast<unsigned int>(time(0)));
-    int testCount = std::rand()%1000+10000;
-    for (int i=0; i<testCount; ++i)
+    int testCount2 = std::rand()%1000+10000;
+    for (int i=0; i<testCount2; ++i)
     {
         newStack.push(std::rand()%1000);
     }
@@ -195,7 +253,7 @@ int main()
     TEST("test pop with some values in stack", newStack.pop(), 4);
 
     /// visual test print content of stack
-    stack<float> newStack2;
+    stackAsList<float> newStack2;
     newStack2.push(1.1);
     newStack2.push(2);
     newStack2.push(3);
@@ -206,6 +264,14 @@ int main()
     std::cout<<std::endl<<std::endl;
     newStack2.printContent();
 
+    /// test for memory alloc/dealloc
+    auto pNewStack3 = new stackAsList<int>;
+    int testCount3 = std::rand()%1000+10000;
+    for (int i=0; i<testCount3; ++i)
+    {
+        pNewStack3->push(std::rand()%1000);
+    }
+    delete pNewStack3;
 
 
     return 0;
