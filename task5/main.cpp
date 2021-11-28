@@ -27,5 +27,5 @@ void MoveTower(int count, int from, int to)
 int main()
 {
     std::cout << "Tower of Hanoi tests:" << std::endl;
-    MoveTower(3,0,2);
+    MoveTower(8,0,2);
 }
