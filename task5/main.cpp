@@ -10,6 +10,11 @@ void ShowMove(int number, int from, int to)
 
 void MoveTower(int count, int from, int to)
 {
+    assert(from!=to);
+    assert(from<=2);
+    assert(to<=2);
+    assert(count>=1);
+
     int temp = 3 - from - to;
     if (count>1)
     {
